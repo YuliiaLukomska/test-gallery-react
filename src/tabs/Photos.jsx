@@ -6,9 +6,12 @@ import { useEffect, useState } from 'react';
 export const Photos = () => {
   const [query, setQuery] = useState('');
   const [images, setImages] = useState([]);
+  // стани isLoading та erro є обов'язковими!!! треба щоб користувач бачив, що йде завантаження а не пусту сторінку і якщо щось нетак - бачив помилку
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  /*створили стан empty,щоб коли не було результату для користувача (н-д при введенні 'ловріпвл') ми могли показати 
+  відповідно повідомлення користувачу (в нас це компонент <Empty/>).*/
   const [empty, setEmpty] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +20,9 @@ export const Photos = () => {
 
   // у нас запит відбувається у двох випадках:коли змінилась query запиту або page запиту, тому масив залежностей відповідний
   useEffect(() => {
+    /* useEffect з масивом залежностей спрацьовує при монтуванні компонента і при зміні будь-якого значення масиву. 
+    При першому монтуванні у нас query ще немає, воно = '', якщо не зробити перевірку, то при першому монтуванні 
+    піде запит по пустому рядку.*/
     if (!query) return;
     const fetchData = async () => {
       setIsLoading(true);
@@ -29,6 +35,8 @@ export const Photos = () => {
           setEmpty(true);
           return;
         }
+        /* задаємо setImages так, щоб при кліку на кнопку LoadMore в нас зберігалась поточна галерея і до неї додавався наступний стек результатів запиту. 
+        Н-д написали cat,отримали 10 картинок котиків, далі натиснули ЛоадМор, і до попереднії 10ти котиків додались ще нових 10.*/
         setImages(prevState => [...prevState, ...photos]);
         setIsVisible(page < Math.ceil(total_results / per_page));
       } catch (error) {
